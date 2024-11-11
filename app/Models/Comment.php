@@ -10,7 +10,7 @@ class Comment extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['content'];
+    protected $fillable = ['content', 'post_id'];
 
     protected $casts = [
         'created_at' => 'datetime',
