@@ -21,7 +21,7 @@ class PostRepository implements PostRepositoryInterface
 
     public function find(int $id)
     {
-        return $this->model->find($id);
+        return $this->model->with('comments')->find($id);
     }
 
     public function create(array $data)
