@@ -36,18 +36,11 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-        ], [
-            'title.required' => 'Please enter a title for the post.',
-            'title.max' => 'The title cannot exceed 255 characters.',
-            'content.required' => 'Please provide content for the post.',
-        ]);
+        $validatedData = $this->validatePost($request);
 
         $this->postRepository->create($validatedData);
 
-        return redirect()->route('posts.index')->with('success', 'Post created successfully!');
+        return $this->redirectWithMessage('Post created successfully!', 'success');
 
     }
 
@@ -57,6 +50,11 @@ class PostController extends Controller
     public function show(string $id)
     {
         $post = $this->postRepository->find($id);
+
+        if (!$post) {
+            return $this->redirectWithMessage('Post not found.', 'error');
+        }
+
         return view('posts.show', compact('post'));
     }
 
@@ -66,6 +64,11 @@ class PostController extends Controller
     public function edit(string $id)
     {
         $post = $this->postRepository->find($id);
+
+        if (!$post) {
+            return $this->redirectWithMessage('Post not found.', 'error');
+        }
+
         return view('posts.edit', compact('post'));
     }
 
@@ -74,18 +77,17 @@ class PostController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-        ], [
-            'title.required' => 'Please enter a title for the post.',
-            'title.max' => 'The title cannot exceed 255 characters.',
-            'content.required' => 'Please provide content for the post.',
-        ]);
+        $validatedData = $this->validatePost($request);
+
+        $post = $this->postRepository->find($id);
+
+        if (!$post) {
+            return $this->redirectWithMessage('Post not found.', 'error');
+        }
     
         $this->postRepository->update($id, $validatedData);
     
-        return redirect()->route('posts.index')->with('success', 'Post updated successfully!');
+        return $this->redirectWithMessage('Post updated successfully!', 'success');
     }
 
     /**
@@ -93,7 +95,30 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
+        $post = $this->postRepository->find($id);
+
+        if (!$post) {
+            return $this->redirectWithMessage('Post not found.', 'error');
+        }
+
         $this->postRepository->delete($id);
-        return redirect()->route('posts.index')->with('success', 'Post deleted successfully!');
+        return $this->redirectWithMessage('Post deleted successfully!', 'success');
+    }
+
+    private function validatePost(Request $request)
+    {
+        return $request->validate([
+            'title' => 'required|string|max:100|min:10',
+            'content' => 'required|string|min:30',
+        ], [
+            'title.required' => 'Please enter a title for the post.',
+            'title.max' => 'The title cannot exceed 255 characters.',
+            'content.required' => 'Please provide content for the post.',
+        ]);
+    }
+
+    private function redirectWithMessage($message, $type = 'error')
+    {
+        return redirect()->route('posts.index')->with($type, $message);
     }
 }
