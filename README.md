@@ -20,7 +20,7 @@ A simple blog application built with Laravel, providing CRUD functionality for p
 
 1. **Clone the repository**
 
-   ```bash
+  ```bash
    git clone https://github.com/omar-a-eid/blog_app.git
    cd blog_app
   ```
